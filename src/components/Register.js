@@ -1,8 +1,9 @@
 // src/components/Register.js
 
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography } from '@mui/material';
+import { TextField, Button, Container, Typography, Snackbar } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [user, setUser] = useState({
@@ -12,6 +13,9 @@ const Register = () => {
     address: '',
     creditCardNumber: ''
   });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -20,11 +24,15 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/users/register', user);
+      const response = await axios.post('http://localhost:8080/api/users/register', user);
       console.log(response.data);
-      // Redirect to login page or show success message
+      setSnackbarMessage('Registration successful!');
+      setOpenSnackbar(true);
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('Registration failed:', error.response.data);
+      setSnackbarMessage(error.response.data || 'Registration failed. Please try again.');
+      setOpenSnackbar(true);
     }
   };
 
@@ -84,6 +92,12 @@ const Register = () => {
           Register
         </Button>
       </form>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        message={snackbarMessage}
+      />
     </Container>
   );
 };
