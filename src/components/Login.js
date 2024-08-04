@@ -3,12 +3,14 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
     email: '',
     password: ''
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -17,9 +19,16 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Implement OAuth2 login logic here
-      console.log('Login credentials:', credentials);
-      // Redirect to profile page on successful login
+      const response = await axios.post('http://localhost:8080/api/auth/login', credentials, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      });
+      
+      if (response.status === 200) {
+        navigate('/profile');
+      }
     } catch (error) {
       console.error('Login failed:', error);
     }
